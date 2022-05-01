@@ -1,0 +1,11 @@
+---
+- name: restart nebula
+  service:
+    name: nebula
+    state: "{{ nebula_restart_handler_state }}"
+  listen: nebula configuration or certificates changed
+
+- name: systemd daemon-reload
+  systemd:
+    daemon_reload: yes
+  listen: systemd unit changed

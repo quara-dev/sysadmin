@@ -1,0 +1,82 @@
+---
+- name: Download nebula binaries
+  get_url:
+    url: "https://github.com/slackhq/nebula/releases/download/v{{ nebula_version }}/nebula-linux-amd64.tar.gz"
+    dest: /tmp/nebula-linux.tar.gz
+  tags:
+    - download
+
+- name: Extract nebula binaries
+  unarchive:
+    remote_src: yes
+    src: /tmp/nebula-linux.tar.gz
+    dest: "{{ nebula_bin }}"
+    owner: root
+    group: root
+  tags:
+    - download
+
+- name: Ensure Nebula home exists
+  file:
+    path: "{{ nebula_home }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Generate Nebula config
+  template:
+    src: templates/nebula.yml.j2
+    dest: "{{ nebula_home }}/config.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: nebula configuration or certificates changed
+
+- name: Create Nebula service
+  template:
+    src: templates/nebula.service.j2
+    dest: /etc/systemd/system/nebula.service
+    owner: root
+    group: root
+    mode: "0755"
+  notify: systemd unit changed
+
+- name: Copy CA certificate
+  copy:
+    remote_src: yes
+    src: "{{ nebula_copy_ca_cert_from }}"
+    dest: "{{ nebula_ca_cert }}"
+    owner: root
+    group: root
+    mode: "0755"
+  notify: nebula configuration or certificates changed
+  when: "nebula_copy_ca_cert_from is defined"
+
+- name: Copy public certificate
+  copy:
+    remote_src: yes
+    src: "{{ nebula_copy_cert_from }}"
+    dest: "{{ nebula_cert }}"
+    owner: root
+    group: root
+    mode: "0755"
+  notify: nebula configuration or certificates changed
+  when: "nebula_copy_cert_from is defined"
+
+- name: Copy private certificate
+  copy:
+    remote_src: yes
+    src: "{{ nebula_copy_key_from }}"
+    dest: "{{ nebula_key }}"
+    owner: root
+    group: root
+    mode: "0600"
+  notify: nebula configuration or certificates changed
+  when: "nebula_copy_key_from is defined"
+
+- name: Ensure nebula is started and enabled at boot.
+  service:
+    name: nebula
+    state: "{{ nebula_service_state }}"
+    enabled: "{{ nebula_service_enabled }}"

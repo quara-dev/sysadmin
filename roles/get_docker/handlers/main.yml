@@ -1,4 +1,3 @@
-# Handler file for gucharbon.setup_docker role.
 ---
 - name: restart docker
   service:

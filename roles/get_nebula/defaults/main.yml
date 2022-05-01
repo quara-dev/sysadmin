@@ -1,0 +1,59 @@
+---
+nebula_version: 1.5.2
+
+nebula_service_state: started
+nebula_service_enabled: true
+nebula_restart_handler_state: restarted
+
+nebula_host: "[::]"
+nebula_port: 0
+
+# nebula_copy_ca_cert_from:
+# nebula_copy_cert_from:
+# nebula_copy_key_from:
+
+nebula_bin: /usr/local/bin
+nebula_home: /etc/nebula
+nebula_ca_cert: "{{ nebula_home }}/ca.crt"
+nebula_cert: "{{ nebula_home }}/node.crt"
+nebula_key: "{{ nebula_home }}/node.key"
+
+nebula_log_level: info
+nebula_log_format: text
+
+nebula_is_lighthouse: false
+
+nebula_lighthouses:
+  "10.100.100.1": ["51.103.41.95:4242"]
+
+nebula_lighthouse_interval: 60
+
+nebula_tun_device: nebula01
+
+nebula_punchy: true
+
+nebula_drop_local_broadcast: false
+nebula_drop_multicast: false
+nebula_tx_queue: 500
+nebula_mtu: 1300
+
+nebula_firewall_inboud:
+  # Allow ping
+  - port: any
+    proto: icmp
+    host: any
+
+  # Allow iperf tests
+  - port: 5201
+    proto: any
+    host: any
+
+  # Allow SSH access
+  - port: 22
+    proto: tcp
+    host: any
+
+nebula_firewall_outbound:
+  - port: any
+    proto: any
+    host: any
