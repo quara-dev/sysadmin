@@ -1,0 +1,116 @@
+---
+- include_tasks: get_pymongo.yml
+
+- name: Generate traefik labels
+  set_fact:
+    mongo_traefik_labels: |
+      {
+        "traefik.enable": "false",
+      }
+
+- name: Deploy mongo service
+  # Use docker_swarm_service module
+  docker_swarm_service:
+    # Service name
+    name: "{{ mongo_service_name }}"
+    # Service images
+    image: "{{ mongo_image }}"
+    user: 0:0
+    # Use args for default command
+    args:
+      - --replSet
+      - rs0
+      - --bind_ip_all
+    # Replicas > 1 is not supported yet
+    mode: replicated
+    replicas: 1
+    # Persist postgres data
+    mounts:
+      - source: "{{ mongo_data_volume_src }}"
+        target: /data/db
+        type: bind
+      - source: "{{ mongo_config_volume_src }}"
+        target: /data/configdb
+        type: bind
+    # Configure resource reservations
+    reservations:
+      cpus: "{{ mongo_min_cpus }}"
+      memory: "{{ mongo_min_memory }}"
+    # Configure resource limits
+    limits:
+      cpus: "{{ mongo_max_cpus }}"
+      memory: "{{ mongo_max_memory }}"
+    # Configure restart policy
+    restart_config:
+      condition: on-failure
+      delay: 10s
+      max_attempts: 3
+      window: 120s
+    # Configure networks to attach service to
+    networks:
+      - name: "{{ mongo_network }}"
+        options:
+          external: true
+    # Publish port
+    publish:
+      - target_port: 27017
+        published_port: "{{ mongo_published_port }}"
+        protocol: tcp
+        mode: ingress
+    labels: "{{ mongo_traefik_labels }}"
+
+- name: Ensure replicaset rs0 exists
+  community.mongodb.mongodb_replicaset:
+    validate: no
+    members: localhost
+
+- name: Set host and service name for mongodb exporter deployment
+  set_fact:
+    mongo_exporter_service_name: "mongo-exporter-{{ ansible_hostname }}"
+
+- name: Generate traefik labels
+  set_fact:
+    mongo_exporter_traefik_labels: |
+      {
+        "traefik.enable": "false",
+        "prometheus-instance": "{{ mongo_service_name }}",
+        "prometheus-job": "{{ mongo_exporter_service_name }}",
+        "prometheus-metrics-port": "9216",
+        "prometheus-metrics-path": "/metrics",
+      }
+
+- name: Deploy mongo exporter service
+  # Use docker_swarm_service module
+  docker_swarm_service:
+    # Service name
+    name: "{{ mongo_exporter_service_name }}"
+    # Service images
+    image: "{{ mongo_exporter_image }}"
+    user: 0:0
+    # Use args for default command
+    args:
+      - "--mongodb.uri=mongodb://{{ mongo_service_name }}:27017/"
+      - "--mongodb.collstats-colls={{ mongo_exporter_monitor_collections | join(',') }}"
+    # Replicas > 1 is not supported yet
+    mode: replicated
+    replicas: 1
+    # Configure resource reservations
+    reservations:
+      cpus: "{{ mongo_exporter_min_cpus }}"
+      memory: "{{ mongo_exporter_min_memory }}"
+    # Configure resource limits
+    limits:
+      cpus: "{{ mongo_exporter_max_cpus }}"
+      memory: "{{ mongo_exporter_max_memory }}"
+    # Configure restart policy
+    restart_config:
+      condition: on-failure
+      delay: 10s
+      max_attempts: 3
+      window: 120s
+    # Configure networks to attach service to
+    networks:
+      - name: "{{ mongo_network }}"
+        options:
+          external: true
+    labels: "{{ mongo_exporter_traefik_labels }}"

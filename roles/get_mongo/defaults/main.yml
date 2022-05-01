@@ -1,0 +1,32 @@
+---
+mongo_service_name: mongo
+mongo_image: mongo:4.0
+mongo_data_volume_src: /var/lib/mongo/data
+mongo_config_volume_src: /var/lib/mongo/config
+mongo_published_port: 27017
+# Docker network to join
+mongo_network: traefik-network
+# Configure number of replicas for swarm Service
+mongo_replicas: 1
+# Configure minimum CPU allocation for the swarm service
+mongo_min_cpus: 0.05
+# Configure maximum CPU allocation for the swarm service
+mongo_max_cpus: 0.5
+# Configure minimum memory allocation for the swarm service
+mongo_min_memory: 32M
+# Configure maximum memory allocation for the swarm service
+mongo_max_memory: 512M
+# Export options
+mongo_exporter_monitor_collections: []
+# Exporter image
+mongo_exporter_image: bitnami/mongodb-exporter:latest
+# Configure number of replicas for swarm Service
+mongo_exporter_replicas: 1
+# Configure minimum CPU allocation for the swarm service
+mongo_exporter_min_cpus: 0.05
+# Configure maximum CPU allocation for the swarm service
+mongo_exporter_max_cpus: 0.1
+# Configure minimum memory allocation for the swarm service
+mongo_exporter_min_memory: 16M
+# Configure maximum memory allocation for the swarm service
+mongo_exporter_max_memory: 64M
