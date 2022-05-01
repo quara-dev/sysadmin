@@ -6,7 +6,7 @@
   include_tasks: users.yml
 
 - name: Configure user SSH settings
-  include_tasks: ssh.yml
+  include_tasks: ssh-keys.yml
 
 - name: Configure sudo
   include_tasks: sudo.yml

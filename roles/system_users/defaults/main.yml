@@ -12,9 +12,7 @@ system_users:
       - docker
       - adm
     create_home: true
-    password_lock: true
     sudo_user: true
-    passwordless_sudo: true
     generate_ssh_key: true
     ssh_authorized_keys:
       # QUARA Admin
