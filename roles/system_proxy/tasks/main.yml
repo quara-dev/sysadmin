@@ -1,0 +1,50 @@
+---
+- name: Configure proxy settings (/etc/environment)
+  blockinfile:
+    dest: /etc/environment
+    create: yes
+    mode: u=rw,g=r,o=r
+    block: |
+      {% if system_http_proxy is defined %}
+      http_proxy="{{ system_http_proxy }}"
+      HTTP_PROXY="{{ system_http_proxy }}"
+      {% endif %}
+      {% if system_ftp_proxy is defined %}
+      ftp_proxy="{{ system_ftp_proxy }}"
+      FTP_PROXY="{{ system_ftp_proxy }}"
+      {% endif %}
+      {% if system_https_proxy is defined %}
+      https_proxy="{{ system_https_proxy }}"
+      HTTPS_PROXY="{{ system_https_proxy }}"
+      {% endif %}
+      {% if system_no_proxy is defined %}
+      no_proxy="{{ system_no_proxy }}"
+      NO_PROXY="{{ system_no_proxy }}"
+      {% endif %}
+
+- name: Configure proxy settings using profile.d (/etc/profile.d/proxy.sh)
+  template:
+    src: proxy.sh.j2
+    dest: /etc/profile.d/proxy.sh
+    mode: u=rw,g=r,o=r
+
+- name: Check if systemd/system.conf exists
+  stat:
+    path: /etc/systemd/system.conf
+  register: systemd_system_conf
+
+- name: Configure proxy settings for systemd services (/etc/systemd/system.conf)
+  lineinfile:
+    path: /etc/systemd/system.conf
+    regexp: "^DefaultEnvironment="
+    line: >-
+      DefaultEnvironment={% if system_ftp_proxy is defined %}"FTP_PROXY={{ system_ftp_proxy }}"{% endif %}
+      {% if system_http_proxy is defined %}"HTTP_PROXY={{ system_http_proxy }}"{% endif %}
+      {% if system_https_proxy is defined %}"HTTPS_PROXY={{ system_https_proxy }}"{% endif %}
+      {% if system_no_proxy is defined %}"NO_PROXY={{ system_no_proxy }}"{% endif %}
+      {% if system_ftp_proxy is defined %}"ftp_proxy={{ system_ftp_proxy }}"{% endif %}
+      {% if system_http_proxy is defined %}"http_proxy={{ system_http_proxy }}"{% endif %}
+      {% if system_https_proxy is defined %}"https_proxy={{ system_https_proxy }}"{% endif %}
+      {% if system_no_proxy is defined %}"no_proxy={{ system_no_proxy }}"{% endif %}
+  when: systemd_system_conf.stat.exists
+  notify: systemd proxy configuration changed

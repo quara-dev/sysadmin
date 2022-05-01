@@ -1,0 +1,19 @@
+#
+# {{ ansible_managed }}
+#
+{% if system_http_proxy is defined %}
+export http_proxy="{{ system_http_proxy }}"
+export HTTP_PROXY="{{ system_http_proxy }}"
+{% endif %}
+{% if system_ftp_proxy is defined %}
+export ftp_proxy="{{ system_ftp_proxy }}"
+export FTP_PROXY="{{ system_ftp_proxy }}"
+{% endif %}
+{% if system_https_proxy is defined %}
+export https_proxy="{{ system_https_proxy }}"
+export HTTPS_PROXY="{{ system_https_proxy }}"
+{% endif %}
+{% if system_no_proxy is defined %}
+export no_proxy="{{ system_no_proxy }}"
+export NO_PROXY="{{ system_no_proxy }}"
+{% endif %}

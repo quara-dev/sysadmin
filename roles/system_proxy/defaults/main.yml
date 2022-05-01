@@ -1,0 +1,5 @@
+---
+system_http_proxy: "http://10.100.100.1:3128"
+system_https_proxy: "http://10.100.100.1:3128"
+system_no_proxy: "localhost,127.0.0.1,quara.azurecr.io,azure.dev,azure.com,10.18.164.0/16"
+# system_ftp_proxy: 'http://proxy.example.com:8080'
