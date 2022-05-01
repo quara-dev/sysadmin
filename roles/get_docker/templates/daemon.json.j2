@@ -3,6 +3,6 @@
   "log-opts": {
     "labels": "com.docker.swarm.service.name"
   },
-  "debug": "{{ docker_daemon_debug }}",
-  "experimental": {{ docker_daemon_experimental }}
+  "debug": {{ docker_daemon_debug | bool | to_json }},
+  "experimental": {{ docker_daemon_experimental | bool | to_json  }}
 }
