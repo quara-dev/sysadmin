@@ -1,4 +1,0 @@
-collections:
-  - name: https://github.com/quara-dev/sysadmin.git
-    type: git
-    version: next

@@ -1,0 +1,32 @@
+system_update_dpkg_options: force-confold,force-confdef
+system_update_upgrade_dist: true
+system_update_remove_packages: []
+system_update_install_packages:
+  # System utilities
+  - sudo
+  - ufw
+  - software-properties-common
+  - ca-certificates
+  - apt-transport-https
+  - lsb-release
+  - gnupg
+  # Developer tools
+  - vim
+  - dos2unix
+  - git
+  # Network tools
+  - curl
+  - wget
+  - telnet
+  - iputils-ping
+  - openssh-server
+  # Userful archive/compression liraries
+  - zip
+  - unzip
+  - gzip
+  - lzma
+  - bzip2
+  - tar
+  - xz-utils
+  # Build tools
+  - build-essential
