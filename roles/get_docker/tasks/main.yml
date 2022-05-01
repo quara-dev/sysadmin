@@ -70,10 +70,16 @@
   meta: flush_handlers
 
 - include_tasks: get_docker_compose.yml
-  when: "docker_compose_install|bool"
+  when: "docker_compose_install | bool"
   tags:
     - docker_compose
 
+- include_tasks: get_docker_py.yml
+  when: "docker_py_install | bool"
+  tags:
+    - docker_py
+
 - include_tasks: init_docker_swarm.yml
+  when: "docker_swarm_init | bool"
   tags:
     - docker_swarm

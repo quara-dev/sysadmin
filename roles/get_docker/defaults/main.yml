@@ -20,3 +20,4 @@ docker_swarm_advertise_addr: "{{ local_address|default(omit) }}"
 docker_compose_install: true
 docker_compose_version: "2.5.0"
 docker_compose_path: /usr/local/bin/docker-compose
+docker_py_install: true

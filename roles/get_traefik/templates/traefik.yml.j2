@@ -13,11 +13,6 @@ entryPoints:
   # HTTPS entrypoint
   https:
     address: ":{{ traefik_internal_https_port }}"
-
-{% for (name, config) in traefik_default_entrypoints.items()  %}
-  {{ name }}:
-    address: "{{ config.address }}"
-{% endfor %}
 {% for (name, config) in traefik_additional_entrypoints.items()  %}
   {{ name }}:
     address: "{{ config.address }}"

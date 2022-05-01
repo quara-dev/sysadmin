@@ -2,6 +2,13 @@
   set_fact:
     traefik_host: "{{ traefik_subdomain }}.{{ traefik_domain }}"
 
+- name: Creates traefik directory on host
+  file:
+    path: "{{ traefik_config_file | dirname }}"
+    state: directory
+    group: root
+    owner: root
+
 - name: Create traefik netowrk
   community.docker.docker_network:
     name: "{{ traefik_network }}"
@@ -9,6 +16,13 @@
     driver: overlay
     labels:
       owner: traefik
+
+- name: Generate traefik environment variables
+  set_fact:
+    traefik_env: |
+      {
+        "{{ traefik_dns_challenge_token_file_env }}": "/acme_token"
+      }
 
 - name: Generate traefik labels
   set_fact:
@@ -47,6 +61,8 @@
     name: "{{ traefik_service_name  }}"
     # Service images
     image: "{{ traefik_image }}"
+    # Environment variables
+    env: "{{ traefik_env }}"
     # Add constraint on service deployment
     mode: replicated
     replicas: "{{ traefik_replicas }}"
