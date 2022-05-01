@@ -40,10 +40,11 @@ traefik_enable_api_insecure: false
 traefik_enable_api_dashboard: true
 # Enable debug API
 traefik_enable_api_debug: true
-# Default TLS certificates (empty string means traefik default value will be used)
-traefik_default_tls_cert: ""
-traefik_default_tls_key: ""
-
+# Default TLS certificates
+# traefik_default_cert_content: ""
+# traefik_default_key_content: ""
+traefik_default_certificate: /etc/traefik/default.crt
+traefik_default_key: /etc/traefik/default.key
 # Set to False to disable letsencrypt
 traefik_enable_letsencrypt: true
 traefik_letsencrypt_email: guillaume.charbonnier@araymond.com

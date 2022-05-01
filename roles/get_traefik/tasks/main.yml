@@ -55,6 +55,18 @@
     dest: "{{ traefik_config_file }}"
     mode: u=rw,g=r,o=r
 
+- name: Write default certificate
+  copy:
+    content: "{{ traefik_default_cert_content }}"
+    dest: "{{ traefik_default_certificate }}"
+  when: "traefik_default_cert_content is defined and traefik_default_cert_content|bool"
+
+- name: Write default certificate key
+  copy:
+    content: "{{ traefik_default_key_content }}"
+    dest: "{{ traefik_default_key }}"
+  when: "traefik_default_key_content is defined and traefik_default_key_content|bool"
+
 - name: Deploy traefik service
   docker_swarm_service:
     # Service name
@@ -85,8 +97,12 @@
         target: /traefik.yml
         type: bind
         readonly: true
-      - source: "{{ traefik_acme_token_file }}"
-        target: /acme_token
+      - source: "{{ traefik_default_certificate }}"
+        target: /default.crt
+        type: bind
+        readonly: true
+      - source: "{{ traefik_default_key }}"
+        target: /default.key
         type: bind
         readonly: true
     # Configure resource reservations
