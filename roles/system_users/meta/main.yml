@@ -1,6 +1,6 @@
 galaxy_info:
   author: Guillaume Charbonnier
-  description: Set timezone and configure systemd-timesyncd
+  description: Ensure system users are present
 
   license: MIT
   min_ansible_version: 2.2
@@ -14,8 +14,7 @@ galaxy_info:
         - jammy
 
   galaxy_tags:
-    - systemd-timesyncd
-    - timesync
-    - timedatectl
+    - apt-get
+    - apt
 
 dependencies: []

@@ -1,0 +1,21 @@
+# Default user configuration.
+---
+# Create docker group with custom gid.
+system_groups:
+  - name: docker
+    gid: 12345
+
+# Create a single user without password and passwordless sudo by default.
+system_users:
+  - name: quara
+    groups:
+      - docker
+      - adm
+    create_home: true
+    password_lock: true
+    sudo_user: true
+    passwordless_sudo: true
+    generate_ssh_key: true
+    ssh_authorized_keys:
+      # QUARA Admin
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDatmjoB/PensjlLNiNwIOtiXg0sgbw+ahB2aEwhzqwQ7weSusTps0DbMsqQ2lKHhcO//43jFehYSAAbRVHAox3YTPtWY1JT18AJTGhWOOt32+W91ZXoFQnQBcTQZs915WUYT2AlqXUdNgIu86lnfV1OmI0koLCVQqJ9P8SJLrCuq11me2lqJFofGDhkSmiJqi4EIPzsTA2pFCbx43h1sBEUIUE2VQAoI+kVG+wbXPtN+Teklb+1NHpxWZWJoh7lEoLZkQKA4W2ou30gZ1pbDndzXTVBVLI1jH6hpnL624H21ypE2NXA+bi6ULj4rooOhg8uG+wu6EdQoBn4hlsBJpFarQM856cXDOnIAcitRd1+D3ozBVS4BIbE5LQCnHsuv6cyNyJfR0d9N2HFd0Q6LgqasOVpZBL1XYst7QhBh1FZYrIK7KdB65Yo4c0XRjqt99m5i0SqqdH6oT7KWsaBMJz3VnoqPV1p/amTPnmYh4fcRX/KFvGJo/XmCzHFD3wP10= quara-admin

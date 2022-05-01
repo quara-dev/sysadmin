@@ -10,10 +10,8 @@ galaxy_info:
       versions:
         - xenial
         - bionic
-    - name: Debian
-      versions:
-        - jessie
-        - stretch
+        - focal
+        - jammy
 
   galaxy_tags:
     - apt-get
