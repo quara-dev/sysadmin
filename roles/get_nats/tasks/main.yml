@@ -1,0 +1,176 @@
+---
+- name: Generate traefik labels
+  set_fact:
+    nats_traefik_labels: |
+      {
+        "traefik.enable": "false",
+      }
+
+- name: Ensure jetstream directory exists
+  file:
+    path: "{{ jetstream_data_volume_src }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure nats jwt directory exists
+  file:
+    path: "{{ nats_jwt_volume_src }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure nats configuration directory exists
+  file:
+    path: "{{ nats_home }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Generate NATS server configuration
+  template:
+    src: nats.conf.j2
+    dest: "{{ nats_home }}/nats.conf"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Generate NATS resolver configuration
+  template:
+    src: resolver.conf.j2
+    dest: "{{ nats_home }}/resolver.conf"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Copy operator JWT
+  copy:
+    content: "{{ nats_operator_jwt }}"
+    dest: "{{ nats_home }}/operator.jwt"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Copy system account JWT
+  copy:
+    content: "{{ nats_system_account_jwt }}"
+    dest: "{{ nats_home }}/sys-account.jwt"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Copy default account JWT
+  copy:
+    content: "{{ nats_default_account_jwt }}"
+    dest: "{{ nats_home }}/account.jwt"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Deploy nats service
+  # Use docker_swarm_service module
+  docker_swarm_service:
+    # Service name
+    name: "{{ nats_service_name }}"
+    # Service images
+    image: "{{ nats_image }}"
+    user: 0:0
+    # Use args for default command
+    args:
+      - -c
+      - /etc/nats/nats.conf
+    # Replicas > 1 is not supported yet
+    mode: replicated
+    replicas: 1
+    # Persist postgres data
+    mounts:
+      - source: "{{ jetstream_data_volume_src }}"
+        target: /data/jetstream
+        type: bind
+      - source: "{{ nats_jwt_volume_src }}"
+        target: /jwt
+        type: bind
+      - source: "{{ nats_home }}"
+        target: /etc/nats
+        type: bind
+        readonly: true
+    # Configure resource reservations
+    reservations:
+      cpus: "{{ nats_min_cpus }}"
+      memory: "{{ nats_min_memory }}"
+    # Configure resource limits
+    limits:
+      cpus: "{{ nats_max_cpus }}"
+      memory: "{{ nats_max_memory }}"
+    # Configure restart policy
+    restart_config:
+      condition: on-failure
+      delay: 10s
+      max_attempts: 3
+      window: 120s
+    # Configure networks to attach service to
+    networks:
+      - name: "{{ nats_network }}"
+        options:
+          external: true
+    # Publish port
+    publish:
+      - target_port: 4222
+        published_port: "{{ nats_published_port }}"
+        protocol: tcp
+        mode: ingress
+      - target_port: 7422
+        published_port: "{{ nats_leafnodes_port }}"
+        protocol: tcp
+        mode: ingress
+    labels: "{{ nats_traefik_labels }}"
+
+- name: Set host and service name for natsdb exporter deployment
+  set_fact:
+    nats_exporter_service_name: "nats-exporter-{{ ansible_hostname }}"
+
+- name: Generate traefik labels
+  set_fact:
+    nats_exporter_traefik_labels: |
+      {
+        "traefik.enable": "false",
+        "prometheus-instance": "{{ nats_service_name }}",
+        "prometheus-job": "{{ nats_exporter_service_name }}",
+        "prometheus-metrics-port": "9216",
+        "prometheus-metrics-path": "/metrics",
+      }
+
+- name: Deploy nats exporter service
+  # Use docker_swarm_service module
+  docker_swarm_service:
+    # Service name
+    name: "{{ nats_exporter_service_name }}"
+    # Service images
+    image: "{{ nats_exporter_image }}"
+    # Use args for default command
+    args:
+      - -varz
+      - "http://{{ nats_service_name }}:8222"
+    # Replicas > 1 is not supported yet
+    # Replicas > 1 is not supported yet
+    mode: replicated
+    replicas: 1
+    # Configure resource reservations
+    reservations:
+      cpus: "{{ nats_exporter_min_cpus }}"
+      memory: "{{ nats_exporter_min_memory }}"
+    # Configure resource limits
+    limits:
+      cpus: "{{ nats_exporter_max_cpus }}"
+      memory: "{{ nats_exporter_max_memory }}"
+    # Configure restart policy
+    restart_config:
+      condition: on-failure
+      delay: 10s
+      max_attempts: 3
+      window: 120s
+    # Configure networks to attach service to
+    networks:
+      - name: "{{ nats_network }}"
+        options:
+          external: true
+    labels: "{{ nats_exporter_traefik_labels }}"

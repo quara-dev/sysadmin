@@ -19,4 +19,4 @@
 
 - name: Install pymongo package
   pip:
-    name: pymongo
+    name: pymongo<4

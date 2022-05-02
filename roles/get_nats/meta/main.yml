@@ -1,0 +1,22 @@
+galaxy_info:
+  author: Guillaume Charbonnier
+  description: Install an NATS Server with NATS-based authentication & authorization resolver
+
+  license: MIT
+  min_ansible_version: 2.2
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+        - focal
+        - jammy
+
+  galaxy_tags:
+    - docker
+    - docker-swarm
+    - nats-server
+    - jetstream
+
+dependencies: []

@@ -1,0 +1,14 @@
+include ./resolver.conf
+
+listen 0.0.0.0:4222
+
+server_name: {{ nats_server_name }}
+
+jetstream {
+  store_dir="/data/jetstream"
+  domain={{ jetstream_domain }}
+}
+
+leafnodes {
+  port: 7422
+}
