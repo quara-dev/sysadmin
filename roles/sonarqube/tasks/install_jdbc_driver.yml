@@ -1,0 +1,22 @@
+---
+- name: "Check if JDBC driver exists"
+  stat:
+    path: "{{ sonar_msqql_jdbc_path }}"
+  register: msqql_jdbc_stat
+
+- block:
+    - name: Download MSSQL JDBC driver
+      get_url:
+        url: "{{ sonar_msqql_jdbc_url }}"
+        dest: "/tmp/mssql-jdbc_auth.zip"
+      retries: 5
+      delay: 10
+    - name: Unarchive MSSQL JDBC driver
+      dest: "{{ jdbc_dir }}"
+      remote_src: yes
+    - name: Add MSSQL JDBC driver directory to PATH
+      copy:
+        dest: /etc/profile.d/mssql-jdbc-auth.sh
+        content: "PATH=$PATH:{{ sonar_mssql_jdbc_dir }}"
+      when: ansible_env.PATH is not search(sonar_mssql_jdbc_dir)
+  when: not msqql_jdbc_stat.stat.exists

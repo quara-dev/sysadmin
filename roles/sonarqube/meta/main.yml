@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: Guillaume Charbonnier
+  description: Install Sonarqube
+
+  license: MIT
+  min_ansible_version: "2.2"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+
+  galaxy_tags:
+    - sonarqube
+
+dependencies: []

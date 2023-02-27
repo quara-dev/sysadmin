@@ -1,0 +1,31 @@
+---
+- name: "Overwrite SonarQube download url"
+  set_fact:
+    sonar_download_url: "{{ __sonar_download_url }}"
+  when: sonar_download_url is not defined
+
+- name: "Overwrite SonarQube plugin base url"
+  set_fact:
+    sonar_plugin_baseurl: "{{ __sonar_plugin_baseurl }}"
+  when: sonar_plugin_baseurl is not defined
+
+- name: "Overwrite SonarQube commercial plugin base url"
+  set_fact:
+    sonar_commercial_plugin_baseurl: "{{ __sonar_commercial_plugin_baseurl }}"
+  when: sonar_commercial_plugin_baseurl is not defined
+
+- name: "Set MSSQL JDBC Auth driver url"
+  set_fact:
+    sonar_mssql_jdbc_version: "11.2.2"
+  when: sonar_version.startswith('9.9')
+
+- name: "Set MSSQL JDBC Auth driver url"
+  set_fact:
+    sonar_mssql_jdbc_version: "11.2.2"
+  when: sonar_version.startswith('9.8')
+
+- name: "Overwrite MSSQL JDBC Auth driver url"
+  set_fact:
+    sonar_mssql_jdbc_url: "https://github.com/microsoft/mssql-jdbc/releases/download/v{{ sonar_mssql_jdbc_version }}/mssql-jdbc_auth.zip"
+    sonar_mssql_jdbc_dir: "{{ jdbc_dir }}/{{ ansible_userspace_bits }}"
+    sonar_msqql_jdbc_path: "{{ jdbc_dir }}/{{ ansible_userspace_bits }}/mssql-jdbc_auth-11.2.2.{{ ansible_userspace_bits }}.dll"
