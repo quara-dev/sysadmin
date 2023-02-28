@@ -1,7 +1,5 @@
 ---
 # defaults file for sonarqube role
-java_version: openjdk-18-jdk
-
 # MSSQL JDBC Auth driver directory
 jdbc_dir: /opt/mssql
 
